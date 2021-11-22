@@ -1,6 +1,6 @@
 #import code_base as CB
 
-from code_base import *
+from code_base_EP1                 import *
 
 # fórmulas
 # todos os átomos que serão utilizados nas fórmulas precisam ser declarados
