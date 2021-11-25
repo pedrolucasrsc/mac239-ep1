@@ -17,31 +17,6 @@ def beta_search(a):
             return i
     else:
         return -1
-        
-        
-
-
-def expande(ramo, betas, lo, hi):
-    se há contradição: retorne
-    se não dá pra expandir: temos que dar o contra exemplo ## não precisa checar se tem contradição
-    
-    temos que expandir
-    
-    se tem expansão alfa (olhamos a partir da posição lo, até o final da lista.):
-        expande todos os alfas
-        atualiza o lo
-    i = beta_search(betas)
-    if(beta_search != -1):
-        b1, b2 = ramo[i].beta_exp()
-        ramo.append(b1)
-                                               ## ache um beta X no array de betas
-        expande()                  ## vamos expandir esse beta.
-        ramo.pop()   ## Vamos dar pop até a posição que estamos, (hi)      ## se achou, marca esse beta e expande seus filhos
-        ramo.append(b2)
-        expande()
-                                  
-
-
 
 def show(a):
   for i in a:
@@ -71,21 +46,72 @@ def check(ramo):
 
 
 
-def expansãoalfa(a, b,tam):
-  for i in range(tam,len(a)):
-    if len(a[i].children) == 0:
-      continue
-    if a[i].alfaorbeta() == "alfa":
-      a[i].alfaexp(a)
-      b.append(False)
+def trim (a, s):
+  """"Recebe uma lista e retorna a lista aparada tal que seu novo tamanho seja s"""
+  while(len(a) > s):
+    a.pop()
+
+
+def size_up_betas(ramo, betas, lo):
+  for j in range(lo,len(ramo)):
+    if ramo[j].alfaorbeta() == "beta":
+      betas.append(True)
     else:
-      b.append(True)
-  show(a)
-  print(check(ramo))
-  print(b)
-    
+      betas.append(False)
 
 
+def expansãoalfa(ramo, betas, lo):
+  i = lo
+  a = len(ramo)
+  while(i < len(ramo)):
+    if len(ramo[i].children) == 0:     #  É um átomo
+      i += 1
+      continue
+    if ramo[i].alfaorbeta() == "alfa":
+      ramo[i].alfaexp(ramo)
+      #betas.append(False)
+    #else:
+      #betas.append(True)
+    i += 1
+  size_up_betas(ramo, betas, a)
+
+
+printou_contra = False
+
+def expande(ramo, betas, lo, hi):
+    global printou_contra
+    #print("INICIO")
+    #show(ramo)
+    #print(betas)
+    if((not check(ramo)) or (printou_contra)):
+      return
+    expansãoalfa(ramo,betas,lo)       # Checa se tem expansão alfa e, se tiver, já faz.
+    lo = len(ramo)-1                  # atualiza o lo
+    #print("DEPOIS DO EXPALF")
+    #show(ramo)
+    #print(betas)
+    #input()
+    i = beta_search(betas)
+    if(i != -1):            # ache um beta X no array de betas
+        betas[i] = False              # se achou, marca esse beta e expande seus filhos
+        b1, b2 = ramo[i].betaexp()
+        ramo.append(b1)
+        size_up_betas(ramo, betas, lo+1)
+        hi = len(ramo)-1              # atualiza o hi 
+        #show(ramo)
+        #print(betas)
+        #input()                
+        expande(ramo, betas, lo, hi)                  
+        trim(ramo, hi)                # Vamos dar pop até a posição que estamos, (hi)
+        trim(betas, hi)      
+        ramo.append(b2)
+        size_up_betas(ramo, betas, lo)
+        expande(ramo, betas, lo, hi)
+    else:                             # Se chegou aqui, não tem mais oquê expandir.
+      if(check(ramo)):
+        print("Contra exemplo:")      # Vamos mostrar o ramo coerente
+        show(ramo)  
+        printou_contra = True
 
 def copy_preposition(preposition):
   return deepcopy(preposition)
@@ -101,9 +127,29 @@ conc1 = P >> R
 ramo = []
 pilhaderamos = deque()
 
-teste1 = ArgumentForm(
+opa = ArgumentForm(
   premissa1, premissa2,
   conclusion = conc1
+)
+teste1 = ArgumentForm(
+  P >> Q, ~Q,   #premises
+  conclusion = ~P
+)
+#
+disjunctive_syllogism = ArgumentForm(
+  P | Q, ~P,    #premises
+  conclusion = Q
+)
+#
+hypothetical_syllogism = ArgumentForm(
+  P >> Q, Q >> R,   #premises
+  conclusion = R
+)
+
+# invalid argument forms
+non_sequitur = ArgumentForm(
+  P,        #premises
+  conclusion = Q
 )
 
 #################################################### resolvendo ########################## 
@@ -115,50 +161,15 @@ for d in teste1.premises:
 teste1.conclusion.mark('F')
 ramo.append(teste1.conclusion)
 
-tam1 = len(ramo)
-tam2 = tam1 + tam1*2
-
 ramo1 = deepcopy(ramo)
 
 betas = []
 
+size_up_betas(ramo1, betas, 0)
 
-tamatual = len(ramo1)
-
-for e in ramo1:
-  if len(e.children) == 0:
-     continue
-  if e.alfaorbeta() == "alfa":
-    e.alfaexp(ramo1)
-    betas.append(False)
-  else:
-    betas.append(True)
-show(ramo1)
-print(check(ramo))
-print(betas)
-
-tam_atual = 0
-
-while(check(ramo1) or len(pilhaderamos) > 0):
-  expansãoalfa(ramo1, betas, tam_atual)
-  tam_atual = len(ramo1)
-  for i in range(len(betas)-1, -1, -1):
-    if(betas[i]):
-      b1, b2 = ramo1[i].betaexp()
-      betas[i] = False
-      pilhaderamos.append([b2, betas, tam_atual])
-      ramo1.append(b1)
-      
-
-
-      
-
-  # expande beta1
-  # ramo = ramo que foi expandido com beta1
-  # empilha beta2
-  if (not check(ramo1)):
-    ramo1 = pilhaderamos.pop()
-  # ramo = pilha.pop()
+expande(ramo1, betas, 0, len(ramo)-1)
+if(not printou_contra):
+  print("VERDADEIRO")
 
 
 
