@@ -3,6 +3,10 @@
 # Refer to the Author whenever the code is used
 
 ## TREES
+from copy import deepcopy
+
+def copy_preposition(preposition):
+  return deepcopy(preposition)
 
 class Tree:
 	def __init__(self, children=None, value=None, parent=None):
@@ -188,8 +192,11 @@ def cast_to_proposition(p):
 class Proposition:
 	symbol = ''
 	empty_str = ''
+	marking = ''
 	def __init__(self, *children):
 		self.children = [ cast_to_proposition(c) for c in children ]
+	def mark(self, mark):
+		self.marking = mark
 	def __str__(self):
 		if len(self.children) == 0: return self.empty_str
 		return self.symbol.join( c.child_str() for c in self.children )
@@ -278,7 +285,78 @@ class Proposition:
 			return e2
 		else:
 			return self.__class__( *[c.substitute(e1,e2) for c in self.children] )
-#
+	def alfaorbeta(self):
+		if self.symbol == " => ":
+			if self.marking == "T":
+				return ("beta")
+			else:
+				return ("alfa")
+		elif self.symbol == " & ":
+			if self.marking == "T":
+				return ("alfa")
+			else:
+				return ("beta")
+		elif self.symbol == " | ":
+			if self.marking == "T":
+				return ("beta")
+			else:
+				return ("alfa")
+		elif self.symbol == "¬":
+				return ("alfa")
+	
+	def alfaexp(self,ramo):
+		if len(self.children) ==0 : return
+		c1 = copy_preposition(self.children[0])
+		if self.symbol == "¬":
+			if self.marking == "T":
+				c1.mark("F")
+			if self.marking == "F":
+				c1.mark("T")
+			ramo.append(c1)
+			return
+		c2 = copy_preposition (self.children[1])
+		if self.symbol == " & ":		
+			c1.mark('T')
+			c2.mark('T')
+		elif self.symbol == " | ":
+			c1.mark('F')
+			c2.mark('F')
+		elif self.symbol == " => ":
+			c1.mark('T')
+			c2.mark('F')
+		elif self.symbol == "¬":
+			if self.marking == "T":
+				c1.mark("F")
+				c2.mark("F")
+			if self.marking == "F":
+				c1.mark("T")
+				c2.mark("F")
+		ramo.append(c1)
+		ramo.append(c2)
+	
+	def betaexp(self):
+		if len(self.children) ==0 : return
+		c1 = copy_preposition(self.children[0])
+		c2 = copy_preposition (self.children[1])
+		if self.symbol == " & ":		
+			c1.mark('F')
+			c2.mark('F')
+		elif self.symbol == " | ":
+			c1.mark('T')
+			c2.mark('T')
+		elif self.symbol == " => ":
+			c1.mark('F')
+			c2.mark('T')
+		return c1,c2
+		
+	def is_atom (self):
+		if(len(self.children) == 0):
+			return True
+		else:
+			return False
+
+		
+	#	
 
 class Constant(Proposition):
 	def __init__(self,value):
@@ -314,6 +392,7 @@ class Variable(Proposition):
 #
 
 class Not(Proposition):
+	symbol = '¬'
 	def __init__(self,child):
 		Proposition.__init__(self,child)
 	def __str__(self):
