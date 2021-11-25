@@ -5,8 +5,8 @@ P,Q,R,S = vars('P', 'Q', 'R', 'S')
 
 
 affirming_the_consequent = ArgumentForm(
-  P >> Q, Q >> R,    #premises
-  conclusion = P >> R
+  P >> Q, Q ,    #premises
+  conclusion = P
 )
 
 livro = ArgumentForm(
