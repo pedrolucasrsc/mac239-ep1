@@ -304,7 +304,7 @@ class Proposition:
 		elif self.symbol == "¬":
 				return ("alfa")
 	
-	def alfaexp(self,ramo):
+	def alfaexp(self):
 		if len(self.children) ==0 : return
 		c1 = copy_preposition(self.children[0])
 		if self.symbol == "¬":
@@ -312,8 +312,8 @@ class Proposition:
 				c1.mark("F")
 			if self.marking == "F":
 				c1.mark("T")
-			ramo.append(c1)
-			return
+			#ramo.append(c1)
+			return c1
 		c2 = copy_preposition (self.children[1])
 		if self.symbol == " & ":		
 			c1.mark('T')
@@ -331,8 +331,9 @@ class Proposition:
 			if self.marking == "F":
 				c1.mark("T")
 				c2.mark("F")
-		ramo.append(c1)
-		ramo.append(c2)
+		#ramo.append(c1)
+		#ramo.append(c2)
+		return c1, c2
 	
 	def betaexp(self):
 		if len(self.children) ==0 : return
