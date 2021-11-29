@@ -339,7 +339,6 @@ class Proposition:
 		if len(self.children) ==0 : return
 		c1 = copy_proposition(self.children[0])
 		c2 = copy_proposition (self.children[1])
-		print("alo" + self.symbol)
 		if self.symbol == ' ^ ':		
 			c1.mark('F')
 			c2.mark('F')
