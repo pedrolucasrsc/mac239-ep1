@@ -2,7 +2,6 @@ from collections import deque
 from code_base_EP1 import *
 from copy import deepcopy
 from argumentos import *
-from testes import *
 
 def imprime(resultado, tipo, formula):
   print(f"Resultado: ({resultado.marking}){resultado}     Tipo: {tipo:^4}      Fórmula de Origem: ({formula.marking}){formula}     ")
@@ -31,15 +30,11 @@ def check(ramo):
     if elem.is_atom():
       if elem.marking == "T":
         if elem in falses:
-          print("contradição")
-          show(ramo)
           return False
         else:
           truths.append(elem)
       else:
         if elem in truths:
-          print("contradição")
-          show(ramo)
           return False
         else:
           falses.append(elem)
@@ -140,16 +135,6 @@ def tableaux(argumento):
 ## main sendo usada para testar os argumentos
 def main():
   tableaux(a)
-  tableaux(b)
-  tableaux(c)
-  tableaux(d)
-  tableaux(e)
-  tableaux(f)
-  tableaux(g)
-  tableaux(h)
-  tableaux(i)
-  tableaux(j)
-  tableaux(k)
 
 
 if __name__ == "__main__":
