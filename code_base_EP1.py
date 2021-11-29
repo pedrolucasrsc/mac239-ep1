@@ -5,8 +5,8 @@
 ## TREES
 from copy import deepcopy
 
-def copy_preposition(preposition):
-  return deepcopy(preposition)
+def copy_proposition(proposition):
+  return deepcopy(proposition)
 
 class Tree:
 	def __init__(self, children=None, value=None, parent=None):
@@ -291,12 +291,12 @@ class Proposition:
 				return ("beta")
 			else:
 				return ("alfa")
-		elif self.symbol == " & ":
+		elif self.symbol == ' ^ ':
 			if self.marking == "T":
 				return ("alfa")
 			else:
 				return ("beta")
-		elif self.symbol == " | ":
+		elif self.symbol == ' v ':
 			if self.marking == "T":
 				return ("beta")
 			else:
@@ -306,7 +306,7 @@ class Proposition:
 	
 	def alfaexp(self):
 		if len(self.children) ==0 : return
-		c1 = copy_preposition(self.children[0])
+		c1 = copy_proposition(self.children[0])
 		if self.symbol == "¬":
 			if self.marking == "T":
 				c1.mark("F")
@@ -314,11 +314,11 @@ class Proposition:
 				c1.mark("T")
 			#ramo.append(c1)
 			return c1
-		c2 = copy_preposition (self.children[1])
-		if self.symbol == " & ":		
+		c2 = copy_proposition (self.children[1])
+		if self.symbol == ' ^ ':		
 			c1.mark('T')
 			c2.mark('T')
-		elif self.symbol == " | ":
+		elif self.symbol == ' v ':
 			c1.mark('F')
 			c2.mark('F')
 		elif self.symbol == " => ":
@@ -337,15 +337,16 @@ class Proposition:
 	
 	def betaexp(self):
 		if len(self.children) ==0 : return
-		c1 = copy_preposition(self.children[0])
-		c2 = copy_preposition (self.children[1])
-		if self.symbol == " & ":		
+		c1 = copy_proposition(self.children[0])
+		c2 = copy_proposition (self.children[1])
+		print("alo" + self.symbol)
+		if self.symbol == ' ^ ':		
 			c1.mark('F')
 			c2.mark('F')
-		elif self.symbol == " | ":
+		elif self.symbol == ' v ':
 			c1.mark('T')
 			c2.mark('T')
-		elif self.symbol == " => ":
+		elif self.symbol == ' => ':
 			c1.mark('F')
 			c2.mark('T')
 		return c1,c2

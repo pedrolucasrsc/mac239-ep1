@@ -2,10 +2,11 @@ from collections import deque
 from code_base_EP1 import *
 from copy import deepcopy
 from argumentos import *
+from testes import *
 
 def imprime(resultado, tipo, formula):
-  print(f"|   ({resultado.marking}){resultado}    | {tipo:^4} |     ({formula.marking}){formula}     |")
-
+  print(f"Resultado: ({resultado.marking}){resultado}     Tipo: {tipo:^4}      Fórmula de Origem: ({formula.marking}){formula}     ")
+  print()
 
 
 
@@ -30,11 +31,15 @@ def check(ramo):
     if elem.is_atom():
       if elem.marking == "T":
         if elem in falses:
+          print("contradição")
+          show(ramo)
           return False
         else:
           truths.append(elem)
       else:
         if elem in truths:
+          print("contradição")
+          show(ramo)
           return False
         else:
           falses.append(elem)
@@ -63,10 +68,15 @@ def expansãoalfa(ramo, betas, lo):
       continue
     if ramo[i].alfaorbeta() == "alfa":
       resultado = ramo[i].alfaexp()
-      ramo.extend(resultado)
-      for elem in resultado:
-        imprime(elem, "α", ramo[i])
+      if type(resultado) == tuple:
+        ramo.extend(resultado)
+        for elem in resultado:
+          imprime(elem, "α", ramo[i])
+      else:
+        ramo.append(resultado)
+        imprime(resultado, "α", ramo[i])
     i += 1
+    
   size_up_betas(ramo, betas, a)
 
 ### Booleano global que olha se já foi encontrado algum ramo saturado e aberto
@@ -77,24 +87,35 @@ def expande(ramo, betas, lo, hi):
   global printou_contra
   if((not check(ramo)) or (printou_contra)):
     return
-  expansãoalfa(ramo,betas,lo)       # Checa se tem expansão alfa e, se tiver, já faz.
+  expansãoalfa(ramo,betas,lo)
+  if(not check(ramo)):  return      # Checa se tem expansão alfa e, se tiver, já faz.
   lo = len(ramo)-1                  # Atualiza o lo
   i = beta_search(betas)
-  if(i != -1):                      # Acha um beta X no array de betas
-      betas[i] = False              # Se achou, marca esse beta e expande seus filhos
-      b1, b2 = ramo[i].betaexp()
-      ramo.append(b1)
-      imprime(b1, "β", ramo[i])
-      size_up_betas(ramo, betas, lo+1)
-      hi = len(ramo)-1              # Atualiza o hi                
-      expande(ramo, betas, lo, hi)
-      if (printou_contra ): return                 
-      trim(ramo, hi)                # Vamos dar pop até a posição que estamos, (hi)
-      trim(betas, hi)      
-      ramo.append(b2)
-      imprime(b2, "β", ramo[i])
-      size_up_betas(ramo, betas, lo)
-      expande(ramo, betas, lo, hi)
+  if(i != -1):
+    #print(betas)
+    #print(i)                       # Acha um beta X no array de betas
+    betas[i] = False              # Se achou, marca esse beta e expande seus filhos
+    #print("AQUI!")
+    #show(ramo)
+    #print(i)
+    #print(betas)
+    #input()
+    b1, b2 = ramo[i].betaexp()
+    ramo.append(b1)
+    imprime(b1, "β", ramo[i])
+    size_up_betas(ramo, betas, lo+1)
+    hi = len(ramo)              # Atualiza o hi                
+    expande(ramo, betas, lo, hi-1)
+    if (printou_contra): return                 
+    trim(ramo, hi)                # Vamos dar pop até a posição que estamos, (hi)
+    trim(betas, hi)      
+    ramo.append(b2)
+    imprime(b2, "β", ramo[i])
+    size_up_betas(ramo, betas, lo+1)
+    hi = len(ramo)              # Atualiza o hi   
+    expande(ramo, betas, lo, hi-1)
+    trim(ramo, hi)                # Vamos dar pop até a posição que estamos, (hi)
+    trim(betas, hi)   
   else:                             # Se chegou aqui, não tem mais oquê expandir.
     if(check(ramo)):
       print("Contra exemplo:")      # Vamos mostrar o ramo coerente
@@ -121,15 +142,13 @@ def tableaux(argumento):
   size_up_betas(ramo1, betas, 0)
   show(ramo1)
   print()
-  print(f"")
-  print(f"| Resultado | Tipo | Fórmula de origem |")
   expande(ramo1, betas, 0, len(ramo)-1)
   if(not printou_contra):
     print("VERDADEIRO")
 
 ## main sendo usada para testar os argumentos
 def main():
-  tableaux(affirming_the_consequent)
+  tableaux(h)
 
 if __name__ == "__main__":
   main()
