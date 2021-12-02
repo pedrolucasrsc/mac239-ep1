@@ -63,7 +63,7 @@ def expansãoalfa(ramo, betas, lo):
       continue
     if ramo[i].alfaorbeta() == "alfa":
       resultado = ramo[i].alfaexp()
-      if type(resultado) == tuple:
+      if type(resultado) == list:
         ramo.extend(resultado)
         for elem in resultado:
           imprime(elem, "α", ramo[i])
@@ -83,25 +83,24 @@ def expande(ramo, betas, lo):
   global printou_contra
   if((not check(ramo)) or (printou_contra)):
     return
-  expansãoalfa(ramo,betas,lo)       # Checa se tem expansão alfa e, se tiver, já faz.
+  expansãoalfa(ramo,betas,lo)      # Checa se tem expansão alfa e, se tiver, já faz.
   if(not check(ramo)):  return      
   lo = len(ramo)-1                  # Atualiza o lo
   i = beta_search(betas)            # Acha um beta X no array de betas
   if(i != -1):                       
     betas[i] = False                # Se achou, marca esse beta e expande seus filhos
     betas1 = deepcopy(betas)        
-    b1, b2 = ramo[i].betaexp()
-    ramo.append(b1)
-    imprime(b1, "β", ramo[i])
-    size_up_betas(ramo, betas, lo+1)               
-    expande(ramo, betas, lo)
-    if (printou_contra): return                 
-    trim(ramo, lo+1)                # Vamos dar pop até a posição que estamos, (hi)
-    betas = betas1      
-    ramo.append(b2)
-    imprime(b2, "β", ramo[i])
-    size_up_betas(ramo, betas, lo+1) 
-    expande(ramo, betas, lo)
+    ramo1 = deepcopy(ramo)
+    filhos = ramo[i].betaexp(ramo)
+    ramo = ramo1
+    for c in filhos:  
+      ramo.append(c)
+      imprime(c, "β", ramo[i])
+      size_up_betas(ramo, betas, lo+1)               
+      expande(ramo, betas, lo)
+      if (printou_contra): return                 
+      trim(ramo, lo+1)                # Vamos dar pop até a posição que estamos, (hi)
+      betas = betas1      
   else:                             # Se chegou aqui, não tem mais oquê expandir.
     if(check(ramo)):
       print("Contra exemplo:")      # Vamos mostrar o ramo coerente

@@ -5,6 +5,11 @@
 ## TREES
 from copy import deepcopy
 
+def show(a):
+  for i in a:
+    print(f"({i.marking}){i}", end = "  ")
+  print()
+
 def copy_proposition(proposition):
   return deepcopy(proposition)
 
@@ -285,6 +290,7 @@ class Proposition:
 			return e2
 		else:
 			return self.__class__( *[c.substitute(e1,e2) for c in self.children] )
+	
 	def alfaorbeta(self):
 		if self.symbol == " => ":
 			if self.marking == "T":
@@ -306,50 +312,42 @@ class Proposition:
 	
 	def alfaexp(self):
 		if len(self.children) ==0 : return
-		c1 = copy_proposition(self.children[0])
+		list_child = [] 
+		for c in self.children: 
+			list_child.append(copy_proposition(c))
 		if self.symbol == "¬":
 			if self.marking == "T":
-				c1.mark("F")
+				list_child[0].mark("F") 
 			if self.marking == "F":
-				c1.mark("T")
-			#ramo.append(c1)
-			return c1
-		c2 = copy_proposition (self.children[1])
-		if self.symbol == ' ^ ':		
-			c1.mark('T')
-			c2.mark('T')
+				list_child[0].mark("T") 
+			return list_child[0] 
+		if self.symbol == ' ^ ':	
+			for c in list_child: 
+				c.mark("T") 
 		elif self.symbol == ' v ':
-			c1.mark('F')
-			c2.mark('F')
+			for c in list_child: 
+				c.mark("F")
 		elif self.symbol == " => ":
-			c1.mark('T')
-			c2.mark('F')
-		elif self.symbol == "¬":
-			if self.marking == "T":
-				c1.mark("F")
-				c2.mark("F")
-			if self.marking == "F":
-				c1.mark("T")
-				c2.mark("F")
-		#ramo.append(c1)
-		#ramo.append(c2)
-		return c1, c2
+			list_child[0].mark("T")
+			list_child[1].mark("F")
+		return list_child
 	
-	def betaexp(self):
+	def betaexp(self,ramo):
 		if len(self.children) ==0 : return
-		c1 = copy_proposition(self.children[0])
-		c2 = copy_proposition (self.children[1])
+		list_child = [] 
+		for c in self.children: 
+			list_child.append(c) 
 		if self.symbol == ' ^ ':		
-			c1.mark('F')
-			c2.mark('F')
+			for c in list_child: 
+				c.mark("F") 
 		elif self.symbol == ' v ':
-			c1.mark('T')
-			c2.mark('T')
+			for c in list_child: 
+				c.marking = "T"
 		elif self.symbol == ' => ':
-			c1.mark('F')
-			c2.mark('T')
-		return c1,c2
-		
+			list_child[0].mark("F") 
+			list_child[1].mark("T") 
+		return list_child 
+
 	def is_atom (self):
 		if(len(self.children) == 0):
 			return True
