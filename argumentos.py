@@ -103,7 +103,7 @@ k = ArgumentForm(
   conclusion = P & (Q|R)
 )
 
-caso_com_árvore_não_binária = ArgumentForm(
+caso_não_binário = ArgumentForm(
   (R | R) | R ,
   conclusion = R
 )
